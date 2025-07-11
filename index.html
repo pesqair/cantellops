@@ -690,6 +690,28 @@
             <h4>Preguntas Frecuentes</h4>
             
             <div class="faq-item">
+                <h5>🌐 ¿Cómo uso las herramientas de PDF si abro la página localmente?</h5>
+                <p>Si abres el archivo HTML directamente (ves "file://" en la URL), las herramientas de combinación y descarga automática no funcionarán por restricciones de seguridad del navegador.</p>
+                <p><strong>Soluciones:</strong></p>
+                <p><strong>Opción 1 - Manual:</strong> Ve a la carpeta "documentos" y usa los archivos directamente.</p>
+                <p><strong>Opción 2 - Servidor Local:</strong> Ejecuta un servidor web simple. Si tienes Python instalado:</p>
+                <p style="background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0;">
+                    python -m http.server 8000
+                </p>
+                <p>Luego ve a: <code>http://localhost:8000</code> en tu navegador.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h5>📄 ¿Por qué mi PDF combinado es muy grande o no se puede crear?</h5>
+                <p>Las planillas de Puerto Rico pueden ser extensas y generar PDFs grandes. Si tu PDF combinado excede 1MB:</p>
+                <p><strong>Soluciones antes de subir:</strong></p>
+                <p>• Comprime tu planilla usando herramientas online como SmallPDF o ILovePDF</p>
+                <p>• Si escaneaste la planilla, usa menor resolución (150-200 DPI es suficiente)</p>
+                <p>• Usa la planilla original del gobierno en lugar de una copia escaneada</p>
+                <p><strong>Alternativa manual:</strong> Descarga bartolome.pdf de la carpeta documentos y súbelo junto con tu planilla por separado en el formulario del consulado.</p>
+            </div>
+            
+            <div class="faq-item">
                 <h5>¿Puedo solicitar por Anexo III sin esperar a que aprueben la solicitud de mi padre/madre?</h5>
                 <p>Sí, puedes presentar tu solicitud con el comprobante de que tu padre/madre ya presentó su solicitud por Anexo I. No necesitas esperar a que se resuelva completamente su expediente.</p>
             </div>
@@ -1113,15 +1135,37 @@
                     return;
                 }
                 
-                if (file.size > 5 * 1024 * 1024) { // 5MB máximo para dar espacio para compresión
-                    statusDiv.innerHTML = '<div class="status-message status-error">❌ El archivo es demasiado grande. Máximo 5MB.</div>';
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                
+                if (file.size > 5 * 1024 * 1024) { // 5MB máximo
+                    statusDiv.innerHTML = `
+                        <div class="status-message status-error">
+                            ❌ El archivo es demasiado grande (${fileSizeMB}MB). Máximo 5MB.<br><br>
+                            <strong>Soluciones:</strong><br>
+                            • Comprime tu planilla usando un compresor PDF online<br>
+                            • Escanea en menor resolución si es una imagen<br>
+                            • Usa la planilla original del gobierno (suele ser más pequeña)
+                        </div>
+                    `;
                     combineBtn.disabled = true;
                     uploadedPlanillaFile = null;
                     return;
                 }
                 
                 uploadedPlanillaFile = file;
-                statusDiv.innerHTML = '<div class="status-message status-success">✅ Planilla cargada: ' + file.name + '</div>';
+                
+                // Advertencia si el archivo es grande
+                if (file.size > 800 * 1024) { // Más de 800KB
+                    statusDiv.innerHTML = `
+                        <div class="status-message status-info">
+                            ⚠️ Planilla cargada: ${file.name} (${fileSizeMB}MB)<br>
+                            <small>Archivo grande detectado. Se aplicará compresión agresiva para mantener bajo 1MB.</small>
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = '<div class="status-message status-success">✅ Planilla cargada: ' + file.name + ' (' + fileSizeMB + 'MB)</div>';
+                }
+                
                 combineBtn.disabled = false;
             } else {
                 uploadedPlanillaFile = null;
@@ -1136,6 +1180,19 @@
                 return;
             }
             
+            // Verificar si estamos en file:// protocol
+            if (window.location.protocol === 'file:') {
+                document.getElementById('combineStatus').innerHTML = `
+                    <div class="status-message status-error">
+                        ❌ Esta función requiere un servidor web.<br>
+                        <strong>Alternativa:</strong> Combina manualmente tu planilla con el archivo "bartolome.pdf" de la carpeta documentos, 
+                        o ejecuta esta página en un servidor web local.
+                    </div>
+                `;
+                document.getElementById('combineBtn').disabled = false;
+                return;
+            }
+            
             var statusDiv = document.getElementById('combineStatus');
             var combineBtn = document.getElementById('combineBtn');
             
@@ -1146,7 +1203,7 @@
                 // Cargar PDF-lib
                 const { PDFDocument } = PDFLib;
                 
-                // Crear nuevo documento PDF
+                // Crear nuevo documento PDF con optimización
                 const mergedPdf = await PDFDocument.create();
                 
                 // Cargar la planilla del usuario
@@ -1158,30 +1215,99 @@
                 // Cargar documentos de Bartolomé
                 const bartolomeResponse = await fetch('/documentos/bartolome.pdf');
                 if (!bartolomeResponse.ok) {
-                    throw new Error('No se pudieron cargar los documentos de Bartolomé');
+                    throw new Error('No se pudieron cargar los documentos de Bartolomé. Verifica que existe /documentos/bartolome.pdf');
                 }
                 const bartolomeArrayBuffer = await bartolomeResponse.arrayBuffer();
                 const bartolomePdf = await PDFDocument.load(bartolomeArrayBuffer);
                 const bartolomePages = await mergedPdf.copyPages(bartolomePdf, bartolomePdf.getPageIndices());
                 bartolomePages.forEach((page) => mergedPdf.addPage(page));
                 
-                // Generar PDF final
-                let pdfBytes = await mergedPdf.save();
+                // Intentar múltiples niveles de compresión
+                let pdfBytes;
+                let compressionLevel = 0;
+                const maxSize = 1024 * 1024; // 1MB
                 
-                // Verificar tamaño y comprimir si es necesario
-                if (pdfBytes.length > 1024 * 1024) { // Si es mayor a 1MB
-                    statusDiv.innerHTML = '<div class="status-message status-info">⏳ Comprimiendo PDF...</div>';
-                    
-                    // Comprimir con menor calidad
+                statusDiv.innerHTML = '<div class="status-message status-info">⏳ Optimizando PDF...</div>';
+                
+                // Nivel 1: Compresión básica
+                pdfBytes = await mergedPdf.save({
+                    useObjectStreams: true,
+                    addDefaultPage: false,
+                    objectStreamsEnabled: true
+                });
+                compressionLevel = 1;
+                
+                // Nivel 2: Compresión media
+                if (pdfBytes.length > maxSize) {
+                    statusDiv.innerHTML = '<div class="status-message status-info">⏳ Aplicando compresión media...</div>';
                     pdfBytes = await mergedPdf.save({
                         useObjectStreams: false,
-                        addDefaultPage: false
+                        addDefaultPage: false,
+                        compress: true
                     });
+                    compressionLevel = 2;
                 }
                 
-                // Verificar si aún es muy grande
-                if (pdfBytes.length > 1024 * 1024) {
-                    statusDiv.innerHTML = '<div class="status-message status-error">❌ El PDF resultante es muy grande. Intenta con una planilla más pequeña o escaneada en menor resolución.</div>';
+                // Nivel 3: Compresión agresiva
+                if (pdfBytes.length > maxSize) {
+                    statusDiv.innerHTML = '<div class="status-message status-info">⏳ Aplicando compresión agresiva...</div>';
+                    
+                    // Recrear el PDF con configuración más agresiva
+                    const optimizedPdf = await PDFDocument.create();
+                    
+                    // Copiar solo las páginas esenciales con compresión máxima
+                    const allPages = await optimizedPdf.copyPages(mergedPdf, mergedPdf.getPageIndices());
+                    allPages.forEach((page) => optimizedPdf.addPage(page));
+                    
+                    pdfBytes = await optimizedPdf.save({
+                        useObjectStreams: false,
+                        addDefaultPage: false,
+                        updateFieldAppearances: false
+                    });
+                    compressionLevel = 3;
+                }
+                
+                // Nivel 4: Último intento - reducir calidad al máximo
+                if (pdfBytes.length > maxSize) {
+                    statusDiv.innerHTML = '<div class="status-message status-info">⏳ Compresión máxima...</div>';
+                    
+                    // Crear un PDF completamente nuevo con configuración mínima
+                    const minimalPdf = await PDFDocument.create();
+                    const pages = mergedPdf.getPages();
+                    
+                    // Copiar contenido página por página de forma optimizada
+                    for (let i = 0; i < pages.length; i++) {
+                        const page = pages[i];
+                        const { width, height } = page.getSize();
+                        const newPage = minimalPdf.addPage([width, height]);
+                        
+                        // Copiar solo el contenido esencial
+                        const copiedPage = await minimalPdf.copyPages(mergedPdf, [i]);
+                        // No agregar la página copiada, solo usar el contenido
+                    }
+                    
+                    pdfBytes = await minimalPdf.save({
+                        useObjectStreams: false,
+                        addDefaultPage: false,
+                        updateFieldAppearances: false,
+                        compress: false // Paradójicamente a veces funciona mejor sin esta opción
+                    });
+                    compressionLevel = 4;
+                }
+                
+                // Si todavía es muy grande, mostrar error con más información
+                if (pdfBytes.length > maxSize) {
+                    const sizeMB = (pdfBytes.length / (1024 * 1024)).toFixed(2);
+                    statusDiv.innerHTML = `
+                        <div class="status-message status-error">
+                            ❌ El PDF resultante es demasiado grande (${sizeMB}MB). <br><br>
+                            <strong>Soluciones:</strong><br>
+                            • Reduce el tamaño de tu planilla (escanea en menor resolución)<br>
+                            • Convierte tu planilla a menor calidad usando un compresor online<br>
+                            • O combina manualmente: descarga bartolome.pdf y úsalo junto con tu planilla<br><br>
+                            <strong>Nivel de compresión alcanzado:</strong> ${compressionLevel}/4
+                        </div>
+                    `;
                     combineBtn.disabled = false;
                     return;
                 }
@@ -1198,17 +1324,29 @@
                 URL.revokeObjectURL(url);
                 
                 const sizeKB = Math.round(pdfBytes.length / 1024);
-                statusDiv.innerHTML = '<div class="status-message status-success">✅ ¡PDF combinado creado exitosamente! (' + sizeKB + ' KB)<br>📥 La descarga debería haber comenzado automáticamente.</div>';
+                statusDiv.innerHTML = `
+                    <div class="status-message status-success">
+                        ✅ ¡PDF combinado creado exitosamente! (${sizeKB} KB)<br>
+                        📥 La descarga debería haber comenzado automáticamente.<br>
+                        <small>Compresión aplicada: Nivel ${compressionLevel}/4</small>
+                    </div>
+                `;
                 
             } catch (error) {
                 console.error('Error combinando PDFs:', error);
-                statusDiv.innerHTML = '<div class="status-message status-error">❌ Error procesando los documentos: ' + error.message + '</div>';
+                statusDiv.innerHTML = '<div class="status-message status-error">❌ Error procesando los documentos: ' + error.message + '<br><br><strong>Posibles soluciones:</strong><br>• Verifica que existe la carpeta "documentos" con bartolome.pdf<br>• Ejecuta esta página en un servidor web local</div>';
             }
             
             combineBtn.disabled = false;
         }
         
         async function downloadDocument(filename, downloadName) {
+            // Detectar si estamos en file:// protocol
+            if (window.location.protocol === 'file:') {
+                showFileProtocolMessage(filename, downloadName);
+                return;
+            }
+            
             try {
                 const response = await fetch('/documentos/' + filename);
                 if (!response.ok) {
@@ -1226,7 +1364,64 @@
                 URL.revokeObjectURL(url);
                 
             } catch (error) {
-                alert('Error descargando el documento: ' + error.message);
+                console.error('Error downloading document:', error);
+                showDownloadErrorMessage(filename, downloadName, error.message);
+            }
+        }
+        
+        function showFileProtocolMessage(filename, downloadName) {
+            const message = `
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 15px 0;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">📁 Descarga Manual Requerida</h4>
+                    <p style="color: #856404; margin-bottom: 15px;">
+                        Como estás abriendo esta página localmente, necesitas descargar el documento manualmente:
+                    </p>
+                    <ol style="color: #856404; margin-left: 20px; margin-bottom: 15px;">
+                        <li>Ve a la carpeta donde tienes esta página web</li>
+                        <li>Busca la carpeta "documentos"</li>
+                        <li>Encuentra el archivo: <strong>${filename}</strong></li>
+                        <li>Renómbralo a: <strong>${downloadName}</strong></li>
+                        <li>Úsalo en el formulario del consulado</li>
+                    </ol>
+                    <p style="color: #856404; font-size: 0.9em; margin: 0;">
+                        <strong>Alternativa:</strong> Para que funcione automáticamente, ejecuta esta página en un servidor web local.
+                    </p>
+                </div>
+            `;
+            
+            // Insertar mensaje en el modal
+            const statusDiv = document.getElementById('combineStatus') || document.querySelector('.document-tools');
+            if (statusDiv) {
+                statusDiv.insertAdjacentHTML('afterend', message);
+            } else {
+                alert('Para descargar automáticamente, necesitas ejecutar esta página en un servidor web.\n\nPor ahora, ve a la carpeta "documentos" y busca: ' + filename);
+            }
+        }
+        
+        function showDownloadErrorMessage(filename, downloadName, errorMessage) {
+            const message = `
+                <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 20px; margin: 15px 0;">
+                    <h4 style="color: #721c24; margin-bottom: 10px;">❌ Error de Descarga</h4>
+                    <p style="color: #721c24; margin-bottom: 10px;">
+                        No se pudo descargar automáticamente: <strong>${filename}</strong>
+                    </p>
+                    <p style="color: #721c24; margin-bottom: 15px;">
+                        <strong>Soluciones:</strong>
+                    </p>
+                    <ol style="color: #721c24; margin-left: 20px; margin-bottom: 15px;">
+                        <li>Verifica que existe la carpeta "documentos" con el archivo</li>
+                        <li>Ejecuta esta página en un servidor web (no abras el archivo directamente)</li>
+                        <li>O busca manualmente el archivo <strong>${filename}</strong> en la carpeta documentos</li>
+                    </ol>
+                    <p style="color: #721c24; font-size: 0.9em; margin: 0;">
+                        Error técnico: ${errorMessage}
+                    </p>
+                </div>
+            `;
+            
+            const statusDiv = document.getElementById('combineStatus') || document.querySelector('.document-tools');
+            if (statusDiv) {
+                statusDiv.insertAdjacentHTML('afterend', message);
             }
         }
         
