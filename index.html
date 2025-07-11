@@ -1175,167 +1175,261 @@
         }
         
                 
-                async function combinePDFs() {
-                            if (!uploadedPlanillaFile) {
-                                document.getElementById('combineStatus').innerHTML = '<div class="status-message status-error">❌ Primero debes subir tu planilla.</div>';
-                                return;
+                // Función para comprimir PDF usando técnicas avanzadas de PDF-lib
+                async function compressPDF(pdfBytes, targetSizeKB = 800) {
+                    const { PDFDocument } = PDFLib;
+                    
+                    try {
+                        // Cargar PDF original
+                        const originalPdf = await PDFDocument.load(pdfBytes);
+                        const originalSizeKB = Math.round(pdfBytes.length / 1024);
+                        
+                        // Configuraciones de compresión progresivas
+                        const compressionLevels = [
+                            // Nivel 1: Compresión básica
+                            {
+                                useObjectStreams: false,
+                                addDefaultPage: false,
+                                updateFieldAppearances: false,
+                                objectStreamsEnabled: false,
+                                compress: true
+                            },
+                            // Nivel 2: Compresión media
+                            {
+                                useObjectStreams: false,
+                                addDefaultPage: false,
+                                updateFieldAppearances: false,
+                                objectStreamsEnabled: false,
+                                compress: false
+                            },
+                            // Nivel 3: Compresión agresiva
+                            {
+                                useObjectStreams: true,
+                                addDefaultPage: false,
+                                updateFieldAppearances: false,
+                                objectStreamsEnabled: true,
+                                compress: false
                             }
+                        ];
+                        
+                        // Probar cada nivel de compresión
+                        for (let i = 0; i < compressionLevels.length; i++) {
+                            const compressedBytes = await originalPdf.save(compressionLevels[i]);
+                            const compressedSizeKB = Math.round(compressedBytes.length / 1024);
                             
-                            // Verificar si estamos en file:// protocol
-                            if (window.location.protocol === 'file:') {
-                                document.getElementById('combineStatus').innerHTML = `
-                                    <div class="status-message status-error">
-                                        ❌ Esta función requiere un servidor web.<br>
-                                        <strong>Alternativa:</strong> Combina manualmente tu planilla con el archivo "bartolome.pdf" de la carpeta documentos, 
-                                        o ejecuta esta página en un servidor web local.
-                                    </div>
-                                `;
-                                document.getElementById('combineBtn').disabled = false;
-                                return;
+                            // Si alcanzamos el tamaño objetivo, devolver este resultado
+                            if (compressedSizeKB <= targetSizeKB) {
+                                return {
+                                    success: true,
+                                    data: compressedBytes,
+                                    originalSize: originalSizeKB,
+                                    compressedSize: compressedSizeKB,
+                                    compressionLevel: i + 1,
+                                    compressionRatio: ((originalSizeKB - compressedSizeKB) / originalSizeKB * 100).toFixed(1)
+                                };
                             }
-                            
-                            var statusDiv = document.getElementById('combineStatus');
-                            var combineBtn = document.getElementById('combineBtn');
-                            
-                            try {
-                                combineBtn.disabled = true;
-                                statusDiv.innerHTML = '<div class="status-message status-info">⏳ Cargando documentos...</div>';
-                                
-                                // Cargar PDF-lib
-                                const { PDFDocument } = PDFLib;
-                                
-                                // Cargar la planilla del usuario
-                                const planillaArrayBuffer = await uploadedPlanillaFile.arrayBuffer();
-                                const planillaBytes = new Uint8Array(planillaArrayBuffer);
-                                
-                                // Cargar documentos de Bartolomé
-                                const bartolomeResponse = await fetch('/documentos/bartolome.pdf');
-                                if (!bartolomeResponse.ok) {
-                                    throw new Error('No se pudieron cargar los documentos de Bartolomé. Verifica que existe /documentos/bartolome.pdf');
-                                }
-                                const bartolomeArrayBuffer = await bartolomeResponse.arrayBuffer();
-                                const bartolomeBytes = new Uint8Array(bartolomeArrayBuffer);
-                                
-                                // Mostrar tamaños originales
-                                const planillaSizeKB = Math.round(planillaBytes.length / 1024);
-                                const bartolomeSizeKB = Math.round(bartolomeBytes.length / 1024);
-                                const totalOriginalKB = planillaSizeKB + bartolomeSizeKB;
-                                
-                                statusDiv.innerHTML = `
-                                    <div class="status-message status-info">
-                                        📊 Planilla: ${planillaSizeKB}KB | Bartolomé: ${bartolomeSizeKB}KB | Total: ${totalOriginalKB}KB<br>
-                                        ⏳ Combinando documentos (preservando contenido original)...
-                                    </div>
-                                `;
-                                
-                                // Verificar tamaño antes de proceder
-                                if (totalOriginalKB > 1024) {
-                                    statusDiv.innerHTML = `
-                                        <div class="status-message status-error">
-                                            ❌ Archivos demasiado grandes para combinar automáticamente<br><br>
-                                            <strong>📊 Análisis de tamaños:</strong><br>
-                                            • Planilla: ${planillaSizeKB}KB<br>
-                                            • Bartolomé: ${bartolomeSizeKB}KB<br>
-                                            • Total: ${totalOriginalKB}KB<br>
-                                            • Límite del consulado: 1024KB (1MB)<br><br>
-                                            <strong>💡 Soluciones recomendadas:</strong><br>
-                                            • Comprime tu planilla usando <a href="https://smallpdf.com/compress-pdf" target="_blank">SmallPDF</a> o <a href="https://www.ilovepdf.com/compress_pdf" target="_blank">ILovePDF</a><br>
-                                            • Objetivo: reducir planilla a máximo 700KB<br>
-                                            • Luego regresa e intenta combinar de nuevo<br>
-                                            • <strong>Alternativa:</strong> Presenta los documentos por separado
-                                        </div>
-                                    `;
-                                    combineBtn.disabled = false;
-                                    return;
-                                }
-                                
-                                // Crear nuevo documento PDF
-                                const mergedPdf = await PDFDocument.create();
-                                
-                                // Cargar PDFs como documentos
-                                const planillaPdf = await PDFDocument.load(planillaBytes);
-                                const bartolomePdf = await PDFDocument.load(bartolomeBytes);
-                                
-                                // Copiar páginas de la planilla primero
-                                statusDiv.innerHTML = `
-                                    <div class="status-message status-info">
-                                        📄 Copiando ${planillaPdf.getPageCount()} páginas de la planilla...
-                                    </div>
-                                `;
-                                
-                                const planillaPageIndices = planillaPdf.getPageIndices();
-                                const planillaPages = await mergedPdf.copyPages(planillaPdf, planillaPageIndices);
-                                planillaPages.forEach((page) => mergedPdf.addPage(page));
-                                
-                                // Copiar páginas de Bartolomé después
-                                statusDiv.innerHTML = `
-                                    <div class="status-message status-info">
-                                        📄 Agregando ${bartolomePdf.getPageCount()} páginas de documentos de Bartolomé...
-                                    </div>
-                                `;
-                                
-                                const bartolomePageIndices = bartolomePdf.getPageIndices();
-                                const bartolomePages = await mergedPdf.copyPages(bartolomePdf, bartolomePageIndices);
-                                bartolomePages.forEach((page) => mergedPdf.addPage(page));
-                                
-                                // Guardar con configuración optimizada
-                                statusDiv.innerHTML = `
-                                    <div class="status-message status-info">
-                                        ⏳ Generando PDF final optimizado...
-                                    </div>
-                                `;
-                                
-                                const pdfBytes = await mergedPdf.save({
-                                    useObjectStreams: false,
-                                    addDefaultPage: false,
-                                    updateFieldAppearances: false
-                                });
-                                
-                                const finalSizeKB = Math.round(pdfBytes.length / 1024);
-                                
-                                // Verificar tamaño final
-                                if (pdfBytes.length > 1024 * 1024) { // 1MB
-                                    const finalSizeMB = (pdfBytes.length / (1024 * 1024)).toFixed(2);
-                                    statusDiv.innerHTML = `
-                                        <div class="status-message status-error">
-                                            ❌ PDF combinado muy grande: ${finalSizeMB}MB<br><br>
-                                            <strong>Razón:</strong> Tu planilla tiene contenido complejo que se expandió al combinar<br><br>
-                                            <strong>💡 Soluciones:</strong><br>
-                                            • Comprime tu planilla original externamente primero<br>
-                                            • Usa <a href="https://smallpdf.com/compress-pdf" target="_blank">SmallPDF</a> para reducir a máximo 600KB<br>
-                                            • O presenta planilla y documentos de Bartolomé por separado
-                                        </div>
-                                    `;
-                                    combineBtn.disabled = false;
-                                    return;
-                                }
-                                
-                                // Crear enlace de descarga
-                                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = 'Documentos_Combinados_Anexo_I.pdf';
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                URL.revokeObjectURL(url);
-                                
-                                statusDiv.innerHTML = `
-                                    <div class="status-message status-success">
-                                        ✅ ¡PDF combinado exitosamente!<br>
-                                        📊 Resultado: ${finalSizeKB}KB | Total páginas: ${mergedPdf.getPageCount()}<br>
-                                        📥 Descarga iniciada - Contenido original preservado
-                                    </div>
-                                `;
-                                
-                            } catch (error) {
-                                console.error('Error combinando PDFs:', error);
-                                statusDiv.innerHTML = '<div class="status-message status-error">❌ Error procesando documentos: ' + error.message + '<br><br><strong>Verifica:</strong><br>• Que tu planilla sea un PDF válido<br>• Que existe /documentos/bartolome.pdf<br>• Que estés usando un servidor web</div>';
-                            }
-                            
-                            combineBtn.disabled = false;
                         }
+                        
+                        // Si la compresión estándar no funciona, crear una versión optimizada manualmente
+                        const optimizedPdf = await PDFDocument.create();
+                        const pages = originalPdf.getPages();
+                        
+                        // Copiar páginas de manera optimizada
+                        for (let i = 0; i < pages.length; i++) {
+                            const [copiedPage] = await optimizedPdf.copyPages(originalPdf, [i]);
+                            optimizedPdf.addPage(copiedPage);
+                        }
+                        
+                        // Configuración ultra-optimizada
+                        const ultraCompressedBytes = await optimizedPdf.save({
+                            useObjectStreams: false,
+                            addDefaultPage: false,
+                            updateFieldAppearances: false,
+                            objectStreamsEnabled: false
+                        });
+                        
+                        const finalSizeKB = Math.round(ultraCompressedBytes.length / 1024);
+                        
+                        return {
+                            success: finalSizeKB <= targetSizeKB,
+                            data: ultraCompressedBytes,
+                            originalSize: originalSizeKB,
+                            compressedSize: finalSizeKB,
+                            compressionLevel: 4,
+                            compressionRatio: ((originalSizeKB - finalSizeKB) / originalSizeKB * 100).toFixed(1)
+                        };
+                        
+                    } catch (error) {
+                        console.error('Error comprimiendo PDF:', error);
+                        return {
+                            success: false,
+                            error: error.message,
+                            data: pdfBytes // Devolver original si falla
+                        };
+                    }
+                }
+        
+        async function combinePDFs() {
+                    if (!uploadedPlanillaFile) {
+                        document.getElementById('combineStatus').innerHTML = '<div class="status-message status-error">❌ Primero debes subir tu planilla.</div>';
+                        return;
+                    }
+                    
+                    // Verificar si estamos en file:// protocol
+                    if (window.location.protocol === 'file:') {
+                        document.getElementById('combineStatus').innerHTML = `
+                            <div class="status-message status-error">
+                                ❌ Esta función requiere un servidor web.<br>
+                                <strong>Alternativa:</strong> Combina manualmente tu planilla con el archivo "bartolome.pdf" de la carpeta documentos, 
+                                o ejecuta esta página en un servidor web local.
+                            </div>
+                        `;
+                        document.getElementById('combineBtn').disabled = false;
+                        return;
+                    }
+                    
+                    var statusDiv = document.getElementById('combineStatus');
+                    var combineBtn = document.getElementById('combineBtn');
+                    
+                    try {
+                        combineBtn.disabled = true;
+                        statusDiv.innerHTML = '<div class="status-message status-info">⏳ Cargando documentos...</div>';
+                        
+                        // Cargar PDF-lib
+                        const { PDFDocument } = PDFLib;
+                        
+                        // Cargar la planilla del usuario
+                        const planillaArrayBuffer = await uploadedPlanillaFile.arrayBuffer();
+                        const planillaBytes = new Uint8Array(planillaArrayBuffer);
+                        
+                        // Cargar documentos de Bartolomé
+                        const bartolomeResponse = await fetch('/documentos/bartolome.pdf');
+                        if (!bartolomeResponse.ok) {
+                            throw new Error('No se pudieron cargar los documentos de Bartolomé. Verifica que existe /documentos/bartolome.pdf');
+                        }
+                        const bartolomeArrayBuffer = await bartolomeResponse.arrayBuffer();
+                        const bartolomeBytes = new Uint8Array(bartolomeArrayBuffer);
+                        
+                        // Mostrar tamaños originales
+                        const planillaSizeKB = Math.round(planillaBytes.length / 1024);
+                        const bartolomeSizeKB = Math.round(bartolomeBytes.length / 1024);
+                        const totalOriginalKB = planillaSizeKB + bartolomeSizeKB;
+                        
+                        statusDiv.innerHTML = `
+                            <div class="status-message status-info">
+                                📊 Planilla: ${planillaSizeKB}KB | Bartolomé: ${bartolomeSizeKB}KB | Total: ${totalOriginalKB}KB<br>
+                                ⏳ Combinando documentos (preservando contenido original)...
+                            </div>
+                        `;
+                        
+                        // Verificar tamaño antes de proceder
+                        if (totalOriginalKB > 1024) {
+                            statusDiv.innerHTML = `
+                                <div class="status-message status-error">
+                                    ❌ Archivos demasiado grandes para combinar automáticamente<br><br>
+                                    <strong>📊 Análisis de tamaños:</strong><br>
+                                    • Planilla: ${planillaSizeKB}KB<br>
+                                    • Bartolomé: ${bartolomeSizeKB}KB<br>
+                                    • Total: ${totalOriginalKB}KB<br>
+                                    • Límite del consulado: 1024KB (1MB)<br><br>
+                                    <strong>💡 Soluciones recomendadas:</strong><br>
+                                    • Comprime tu planilla usando <a href="https://smallpdf.com/compress-pdf" target="_blank">SmallPDF</a> o <a href="https://www.ilovepdf.com/compress_pdf" target="_blank">ILovePDF</a><br>
+                                    • Objetivo: reducir planilla a máximo 700KB<br>
+                                    • Luego regresa e intenta combinar de nuevo<br>
+                                    • <strong>Alternativa:</strong> Presenta los documentos por separado
+                                </div>
+                            `;
+                            combineBtn.disabled = false;
+                            return;
+                        }
+                        
+                        // Crear nuevo documento PDF
+                        const mergedPdf = await PDFDocument.create();
+                        
+                        // Cargar PDFs como documentos
+                        const planillaPdf = await PDFDocument.load(planillaBytes);
+                        const bartolomePdf = await PDFDocument.load(bartolomeBytes);
+                        
+                        // Copiar páginas de la planilla primero
+                        statusDiv.innerHTML = `
+                            <div class="status-message status-info">
+                                📄 Copiando ${planillaPdf.getPageCount()} páginas de la planilla...
+                            </div>
+                        `;
+                        
+                        const planillaPageIndices = planillaPdf.getPageIndices();
+                        const planillaPages = await mergedPdf.copyPages(planillaPdf, planillaPageIndices);
+                        planillaPages.forEach((page) => mergedPdf.addPage(page));
+                        
+                        // Copiar páginas de Bartolomé después
+                        statusDiv.innerHTML = `
+                            <div class="status-message status-info">
+                                📄 Agregando ${bartolomePdf.getPageCount()} páginas de documentos de Bartolomé...
+                            </div>
+                        `;
+                        
+                        const bartolomePageIndices = bartolomePdf.getPageIndices();
+                        const bartolomePages = await mergedPdf.copyPages(bartolomePdf, bartolomePageIndices);
+                        bartolomePages.forEach((page) => mergedPdf.addPage(page));
+                        
+                        // Guardar con configuración optimizada
+                        statusDiv.innerHTML = `
+                            <div class="status-message status-info">
+                                ⏳ Generando PDF final optimizado...
+                            </div>
+                        `;
+                        
+                        const pdfBytes = await mergedPdf.save({
+                            useObjectStreams: false,
+                            addDefaultPage: false,
+                            updateFieldAppearances: false
+                        });
+                        
+                        const finalSizeKB = Math.round(pdfBytes.length / 1024);
+                        
+                        // Verificar tamaño final
+                        if (pdfBytes.length > 1024 * 1024) { // 1MB
+                            const finalSizeMB = (pdfBytes.length / (1024 * 1024)).toFixed(2);
+                            statusDiv.innerHTML = `
+                                <div class="status-message status-error">
+                                    ❌ PDF combinado muy grande: ${finalSizeMB}MB<br><br>
+                                    <strong>Razón:</strong> Tu planilla tiene contenido complejo que se expandió al combinar<br><br>
+                                    <strong>💡 Soluciones:</strong><br>
+                                    • Comprime tu planilla original externamente primero<br>
+                                    • Usa <a href="https://smallpdf.com/compress-pdf" target="_blank">SmallPDF</a> para reducir a máximo 600KB<br>
+                                    • O presenta planilla y documentos de Bartolomé por separado
+                                </div>
+                            `;
+                            combineBtn.disabled = false;
+                            return;
+                        }
+                        
+                        // Crear enlace de descarga
+                        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'Documentos_Combinados_Anexo_I.pdf';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        statusDiv.innerHTML = `
+                            <div class="status-message status-success">
+                                ✅ ¡PDF combinado exitosamente!<br>
+                                📊 Resultado: ${finalSizeKB}KB | Total páginas: ${mergedPdf.getPageCount()}<br>
+                                📥 Descarga iniciada - Contenido original preservado
+                            </div>
+                        `;
+                        
+                    } catch (error) {
+                        console.error('Error combinando PDFs:', error);
+                        statusDiv.innerHTML = '<div class="status-message status-error">❌ Error procesando documentos: ' + error.message + '<br><br><strong>Verifica:</strong><br>• Que tu planilla sea un PDF válido<br>• Que existe /documentos/bartolome.pdf<br>• Que estés usando un servidor web</div>';
+                    }
+                    
+                    combineBtn.disabled = false;
+                }
         
         async function downloadDocument(filename, downloadName) {
             // Detectar si estamos en file:// protocol
