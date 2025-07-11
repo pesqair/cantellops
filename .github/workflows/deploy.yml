@@ -1,0 +1,30 @@
+name: Deploy to Cantellops Server
+
+on:
+  push:
+    branches:
+      - main    # run on pushes to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy via SSH
+        env:
+          HOST: ${{ secrets.SERVER_HOST }}
+          USER: ${{ secrets.SERVER_USER }}
+          PORT: ${{ secrets.SERVER_PORT || 22 }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -p $PORT $USER@$HOST << 'EOF'
+            cd /var/www/html/cantellops.digitaino.com
+            git pull origin main
+          EOF
