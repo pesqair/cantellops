@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		4B0820DC2E208458003E0CCC /* old.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = old.html; sourceTree = "<group>"; };
 		4BEFC9842E201B33001879ED /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -15,6 +16,7 @@
 			isa = PBXGroup;
 			children = (
 				4BEFC9842E201B33001879ED /* index.html */,
+				4B0820DC2E208458003E0CCC /* old.html */,
 			);
 			sourceTree = "<group>";
 		};

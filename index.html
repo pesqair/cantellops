@@ -3,376 +3,957 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guía para obtener la nacionalidad española - Familia Cantellops</title>
+    <title>Guía para solicitar la nacionalidad española bajo la Ley de Memoria Democrática</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background: linear-gradient(135deg, #c60b1e 0%, #ffc400 100%);
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            backdrop-filter: blur(10px);
         }
         
         h1 {
-            margin: 0;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
             font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
         
         .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
             font-size: 1.2em;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
-        
-        .section {
-            background: white;
-            padding: 30px;
-            margin-bottom: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        h2 {
-            color: #c60b1e;
-            border-bottom: 3px solid #ffc400;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        
-        h3 {
-            color: #333;
-            margin-top: 25px;
-        }
-        
-        .anexo-box {
-            border: 2px solid #c60b1e;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            background: #fdf8f8;
-        }
-        
-        .anexo-title {
-            color: #c60b1e;
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .important-note {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .warning {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        ul {
-            padding-left: 20px;
-        }
-        
-        li {
-            margin-bottom: 10px;
-        }
-        
-        .contact-info {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 5px;
-            padding: 20px;
-            margin: 20px 0;
         }
         
         .family-tree {
-            background: #e7f3ff;
-            border: 1px solid #b8daff;
-            border-radius: 5px;
-            padding: 20px;
-            margin: 20px 0;
+            background: linear-gradient(145deg, #e8f4f8, #f0f9ff);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
             text-align: center;
         }
         
-        .generation {
-            margin: 15px 0;
-            padding: 10px;
+        .children {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .child-card {
             background: white;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            border: 2px solid #e74c3c;
+            border-radius: 12px;
+            padding: 15px;
+            min-width: 180px;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
         
-        .arrow {
+        .child-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background: #fff5f5;
+        }
+        
+        .child-name {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        
+        .child-birth {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+        
+        .questionnaire {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .question {
+            display: none;
+        }
+        
+        .question.active {
+            display: block;
+        }
+        
+        .question h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #3498db;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .selected-ancestor {
+            background: #e8f5e9;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #2e7d32;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .selected-ancestor.active {
+            display: block;
+        }
+        
+        .result {
+            display: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .result.active {
+            display: block;
+        }
+        
+        .result h2 {
+            margin-bottom: 20px;
             font-size: 2em;
-            color: #c60b1e;
-            margin: 10px 0;
         }
         
-        a {
-            color: #c60b1e;
+        .result p {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        .anexo-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .reset-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .reset-btn:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .info-box li:before {
+            content: "→";
+            position: absolute;
+            left: -20px;
+            color: #856404;
+            font-weight: bold;
+        }
+        
+        .links {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .links h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .links a {
+            display: block;
+            color: #3498db;
             text-decoration: none;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
         }
         
-        a:hover {
+        .links a:hover {
+            color: #2980b9;
             text-decoration: underline;
         }
         
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-            
-            .section {
-                padding: 20px;
-            }
+        .process-section {
+            background: #e8f5e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .process-section h4 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .process-step {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid #4caf50;
+        }
+        
+        .process-step h5 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .process-step p {
+            color: #5a6c7d;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        
+        .process-step ol {
+            color: #5a6c7d;
+            line-height: 1.5;
+            padding-left: 20px;
+        }
+        
+        .process-step li {
+            margin-bottom: 5px;
+        }
+        
+        .process-step a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .process-step a:hover {
+            text-decoration: underline;
+        }
+        
+        .faq-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .faq-section h4 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .faq-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .faq-item h5 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .faq-item p {
+            color: #5a6c7d;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .appointment-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 15px 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .appointment-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .modal-step {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+
+        .modal-step h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .modal-step p {
+            color: #5a6c7d;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .modal-step ul {
+            color: #5a6c7d;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .modal-step li {
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1> Guía para obtener la nacionalidad española</h1>
-            <p class="subtitle">Familia Cantellops - Ley de Memoria Democrática</p>
-        </header>
-
-        <div class="section">
-            <h2>Introducción</h2>
-            <p>Esta guía está diseñada para ayudar a los miembros de nuestra familia a solicitar la ciudadanía española bajo la <strong>Ley de Memoria Democrática (Ley 20/2022)</strong>.</p>
-            
-            <div class="family-tree">
-                <h3>Árbol Genealógico Relevante</h3>
-                <div class="generation">
-                    <strong>Bartolomé Cantellops</strong><br>
-                    <em>Bisabuelo - Español de origen</em>
-                </div>
-                <div class="arrow">↓</div>
-                <div class="generation">
-                    <strong>Dolores Cantellops y sus hermanos</strong><br>
-                    <em>Españoles por sangre (gracias a la nacionalidad de Bartolomé)</em>
-                </div>
-                <div class="arrow">↓</div>
-                <div class="generation">
-                    <strong>Nietos de Dolores (Anexo 1)</strong><br>
-                    <em>Solicitan directamente por ser nietos de española</em>
-                </div>
-                <div class="arrow">↓</div>
-                <div class="generation">
-                    <strong>Bisnietos de Dolores (Anexo 3)</strong><br>
-                    <em>Solicitan como hijos de quienes aplican por Anexo 1</em>
-                </div>
+        <h1>Familia Cantellops</h1>
+        <p class="subtitle">Guía para solicitar la nacionalidad española bajo la Ley de Memoria Democrática</p>
+        
+        <div class="family-tree">
+            <div class="child-card" style="border-color: #3498db; margin-bottom: 20px;">
+                <div class="child-name" style="color: #3498db; font-size: 1.3em;">Bartolomé José Buenaventura Cantellops Bisquerra</div>
+                <div class="child-birth">Nacido en 1840<br>Palma de Mallorca, España</div>
             </div>
-            
-            <div class="important-note">
-                <strong>Nota Importante:</strong> Aunque la ley se enfoca en nietos, los bisnietos pueden aplicar usando la declaración de nacionalidad de Bartolomé Cantellops para demostrar que sus hijos (incluyendo a Dolores) nacieron cuando él era español y por tanto son españoles de sangre.
+            <p style="margin: 10px 0; font-weight: 500;">Haz clic en el hijo de Bartolomé del cual desciendes:</p>
+            <div class="children">
+                <div class="child-card" onclick="selectAncestor('Rafael')">
+                    <div class="child-name">Rafael</div>
+                    <div class="child-birth">Nacido ~1882<br>San Juan, Puerto Rico</div>
+                </div>
+                <div class="child-card" onclick="selectAncestor('María')">
+                    <div class="child-name">María</div>
+                    <div class="child-birth">Nacida ~1885<br>San Juan, Puerto Rico</div>
+                </div>
+                <div class="child-card" onclick="selectAncestor('Francisca')">
+                    <div class="child-name">Francisca</div>
+                    <div class="child-birth">Nacida ~1888<br>San Juan, Puerto Rico</div>
+                </div>
+                <div class="child-card" onclick="selectAncestor('Juan')">
+                    <div class="child-name">Juan</div>
+                    <div class="child-birth">Nacido ~1892<br>Río Piedras, Puerto Rico</div>
+                </div>
+                <div class="child-card" onclick="selectAncestor('Dolores')">
+                    <div class="child-name">Dolores</div>
+                    <div class="child-birth">Nacida ~1894<br>San Juan, Puerto Rico</div>
+                </div>
             </div>
         </div>
-
-        <div class="section">
-            <h2>¿Qué Anexo Necesitas?</h2>
+        
+        <div class="questionnaire">
+            <div class="selected-ancestor" id="selected-ancestor"></div>
             
-            <div class="anexo-box">
-                <div class="anexo-title">ANEXO 1 - Para Nietos de Dolores Cantellops</div>
-                <p><strong>¿Quién puede aplicar?</strong> Los nietos directos de Dolores Cantellops y sus hermanos.</p>
-                <p><strong>Fundamento legal:</strong> Son nietos de española de origen.</p>
-                <p><strong>Proceso:</strong> Solicitud directa bajo la Ley de Memoria Democrática.</p>
-                <p><strong>Formulario:</strong> <a href="https://www.exteriores.gob.es/Documents/DocumentosSC/Nacionalidad/Anexo%201.pdf" target="_blank">Anexo I (PDF)</a></p>
-            </div>
-            
-            <div class="anexo-box">
-                <div class="anexo-title">ANEXO 3 - Para Hijos de Quienes Solicitan por Anexo 1</div>
-                <p><strong>¿Quién puede aplicar?</strong> Los hijos mayores de edad de las personas que solicitan o han solicitado por Anexo 1.</p>
-                <p><strong>Fundamento legal:</strong> Son hijos de personas que obtienen la nacionalidad por la Ley de Memoria Democrática.</p>
-                <p><strong>Formulario:</strong> <a href="https://www.exteriores.gob.es/Documents/DocumentosSC/Nacionalidad/Anexo%203.pdf" target="_blank">Anexo III (PDF)</a></p>
-                <div class="important-note">
-                    <strong>¡Importante!</strong> NO necesitas esperar a que se apruebe la solicitud de tu padre/madre. Puedes solicitar con el comprobante de que ellos ya presentaron su solicitud.
+            <div class="question" id="q2">
+                <h3>¿Cuál es tu relación con <span id="ancestor-name"></span>?</h3>
+                <div class="options">
+                    <div class="option" onclick="selectRelation('hijo')">Soy su hijo/a</div>
+                    <div class="option" onclick="selectRelation('nieto')">Soy su nieto/a</div>
+                    <div class="option" onclick="selectRelation('bisnieto')">Soy su bisnieto/a</div>
                 </div>
             </div>
             
-            <div class="warning">
-                <strong>Importante:</strong> Esta guía aplica específicamente para el <strong>Consulado General de España en San Juan de Puerto Rico</strong>. Otros consulados pueden tener procedimientos diferentes.
+            <div class="question" id="q4-nieto">
+                <h3>¿Tu padre/madre (hijo/a de <span id="ancestor-name3"></span>) está vivo/a?</h3>
+                <div class="options">
+                    <div class="option" onclick="answer('padre-vivo')">Sí, está vivo/a</div>
+                    <div class="option" onclick="answer('padre-fallecido')">No, ha fallecido</div>
+                </div>
             </div>
+            
+            <div class="question" id="q5-nieto-vivo">
+                <h3>¿Tu padre/madre ya ha solicitado la nacionalidad española por la Ley de Memoria Democrática?</h3>
+                <div class="options">
+                    <div class="option" onclick="answer('padre-solicito')">Sí, ya la solicitó o está en proceso</div>
+                    <div class="option" onclick="answer('padre-no-solicito')">No, aún no la ha solicitado</div>
+                </div>
+            </div>
+            
+            <div class="question" id="q6-bisnieto">
+                <h3>¿Tu padre/madre ya tiene nacionalidad española o ha solicitado la nacionalidad española por la Ley de Memoria Democrática?</h3>
+                <div class="options">
+                    <div class="option" onclick="answer('padre-es-espanol')">Sí, ya tiene nacionalidad española o ha solicitado bajo Anexo I o III</div>
+                    <div class="option" onclick="answer('padre-no-es-espanol')">No, no tiene nacionalidad española ni ha solicitado</div>
+                </div>
+            </div>
+            
+            <div class="question" id="q7-bisnieto-padre-vivo">
+                <h3>¿Tu padre/madre está vivo/a?</h3>
+                <div class="options">
+                    <div class="option" onclick="answer('bisnieto-padre-vivo')">Sí, está vivo/a</div>
+                    <div class="option" onclick="answer('bisnieto-padre-fallecido')">No, ha fallecido</div>
+                </div>
+            </div>
+            
+            <div class="question" id="q8-bisnieto-abuelo-vivo">
+                <h3>¿Tu abuelo/a (<span id="ancestor-name4"></span>) está vivo/a?</h3>
+                <div class="options">
+                    <div class="option" onclick="answer('bisnieto-abuelo-vivo')">Sí, está vivo/a</div>
+                    <div class="option" onclick="answer('bisnieto-abuelo-fallecido')">No, ha fallecido</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="result" id="result">
+            <!-- Results will be inserted here -->
+        </div>
+        
+        <div class="info-box">
+            <h4>Información Importante sobre Documentos:</h4>
+            <ul>
+                <li>Todas las actas de nacimiento deben ser <strong>certificaciones literales</strong> del registro civil</li>
+                <li>Los documentos deben estar <strong>apostillados</strong> si son de fuera de España</li>
+                <li>El <strong>resguardo</strong> es el comprobante que das cuando solicitas - con eso los hijos pueden solicitar sin esperar</li>
+                <li>Los <strong>formularios Anexo I y III</strong> se descargan del consulado español</li>
+            </ul>
+        </div>
+        
+        <div class="links">
+            <h4>Enlaces Útiles:</h4>
+            <a href="https://www.exteriores.gob.es/Consulados/sanjuandepuertorico/es/Comunicacion/Noticias/Paginas/Articulos/NUEVO-SISTEMA-DE-CITAS-PARA-LA-LEY-DE-MEMORIA-DEMOCRATICA.aspx" target="_blank">Sistema de Citas - Consulado San Juan</a>
+            <a href="https://www.exteriores.gob.es/Consulados/sanjuandepuertorico/es/ServiciosConsulares/Paginas/index.aspx?scco=Puerto+Rico+%28EEUU%29&scd=253&scca=Nacionalidad&scs=Nacionalidad+española+por+la+Ley+de+Memoria+Democrática" target="_blank">Información sobre Nacionalidad - Consulado San Juan</a>
+            <a href="https://www.exteriores.gob.es/Consulados/sanjuandepuertorico/es/Comunicacion/Noticias/PublishingImages/Paginas/Articulos/DOCUMENTACION-LEY-MEMORIA-DEMOCRATICA/DOCUMENTACIÓN%20%20LEY%2020-2022!.pdf" target="_blank">Documentación Requerida (PDF)</a>
         </div>
 
-        <div class="section">
-            <h2>Documentación Requerida</h2>
-            <p><strong>Todos los documentos deben presentarse en ORIGINAL Y DOS COPIAS</strong></p>
-            <p><strong>SOLICITUDES RELLENADAS Y FIRMADAS</strong></p>
+        <div class="faq-section">
+            <h4>Preguntas Frecuentes</h4>
             
-            <h3>Documentos Generales (Para Todos los Casos)</h3>
-            <ul>
-                <li> Certificado literal de nacimiento del solicitante (traducido al español si aplica). Si nació en el exterior debe estar apostillado con la Apostilla de La Haya o sello del Ministerio de Relaciones Exteriores del país que emitió el certificado</li>
-                <li> Certificado literal de nacimiento del PADRE del solicitante:
-                    <ul>
-                        <li>Si nació en España: expedido por registro civil español</li>
-                        <li>Si nació en Puerto Rico: lo provee el consulado si está inscrito en el Registro Civil Consular</li>
-                        <li>Si nació en el exterior: apostillado y traducido al español</li>
-                    </ul>
-                </li>
-                <li> Certificado literal de nacimiento de la MADRE del solicitante (mismas condiciones que el padre)</li>
-                <li> Certificado de matrimonio de los padres (traducido al español si aplica, apostillado si se contrajo en el exterior)</li>
-                <li> Pasaporte vigente (si es mujer casada que figura con apellido de casada, incluir certificado de matrimonio)</li>
-                <li> Certificación de radicación de planilla contributiva en Puerto Rico (demuestra residencia en la demarcación consular)</li>
-            </ul>
-            
-            <h3>Documentos Específicos para Anexo 1 (Nietos de Dolores)</h3>
-            <ul>
-                <li> Certificado literal de nacimiento del abuelo español (Dolores Cantellops o sus hermanos) emitido por el registro civil español</li>
-                <li> En caso de no existir certificado: fe de bautismo y certificación negativa del registro civil español</li>
-                <li> Declaración de Nacionalidad 1899-1900 de Bartolomé Cantellops (Archivo General de Puerto Rico)</li>
-            </ul>
-            
-            <h3>Documentos Específicos para Anexo 3 (Hijos de Anexo 1)</h3>
-            <ul>
-                <li> Certificado literal de nacimiento del padre o madre español (quien solicitó por Anexo 1)</li>
-                <li> Comprobante de que el padre/madre ha presentado su solicitud (no es necesario que esté aprobada)</li>
-            </ul>
-            
-            <h3>Formularios Adicionales</h3>
-            <ul>
-                <li> Hoja de declaración de datos para inscripción de nacimiento</li>
-                <li> Anexo V</li>
-                <li> Formulario correspondiente (<a href="https://www.exteriores.gob.es/Documents/DocumentosSC/Nacionalidad/Anexo%201.pdf" target="_blank">Anexo I</a> o <a href="https://www.exteriores.gob.es/Documents/DocumentosSC/Nacionalidad/Anexo%203.pdf" target="_blank">Anexo III</a>)</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>Documentos Provisionales de la Familia</h2>
-            <div class="important-note">
-                <strong>Para facilitar el proceso de solicitud de citas:</strong><br>
-                Aquí puedes descargar copias provisionales de documentos familiares importantes que podrás usar para solicitar tu cita en el consulado. Estos documentos deben ser reemplazados por los originales durante la cita presencial.
+            <div class="faq-item">
+                <h5>¿Puedo solicitar por Anexo III sin esperar a que aprueben la solicitud de mi padre/madre?</h5>
+                <p>Sí, puedes presentar tu solicitud con el comprobante de que tu padre/madre ya presentó su solicitud por Anexo I. No necesitas esperar a que se resuelva completamente su expediente.</p>
             </div>
             
-            <h3>Documentos Disponibles</h3>
-            <ul>
-                <li> Acta de Bautismo de Bartolomé Cantellops - [Pendiente de subir]</li>
-                <li> Acta de Bautismo de Dolores Cantellops - [Pendiente de subir]</li>
-                <li> Declaración de Nacionalidad 1899-1900 - [Pendiente de subir]</li>
-            </ul>
+            <div class="faq-item">
+                <h5>¿Qué pasa si soy menor de edad?</h5>
+                <p>Los menores de edad deben esperar a que se apruebe la solicitud de sus padres, excepto si el abuelo es español de origen (caso de Anexo I).</p>
+            </div>
             
-            <div class="warning">
-                <strong>Importante:</strong> Estos documentos son solo para facilitar la solicitud de cita. Durante la cita presencial debes presentar los documentos originales o copias certificadas según sea requerido por el consulado.
+            <div class="faq-item">
+                <h5>¿Puedo usar los documentos provisionales de la familia?</h5>
+                <p>Sí, puedes usar las copias provisionales (acta de bautismo, etc.) para solicitar tu cita, pero durante la cita presencial debes presentar los documentos originales o copias literales según indique el consulado.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h5>¿Qué son las certificaciones literales?</h5>
+                <p>Las certificaciones literales son copias exactas del documento original tal como aparece en el registro. En Puerto Rico, el Registro Demográfico expide certificaciones literales de los certificados de nacimiento, que son copias directas del "récord" original. De necesitar una certificación literal, la misma deberá ser solicitada presencialmente en las oficinas del Registro Demográfico.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h5>¿Necesito apostillar mis documentos?</h5>
+                <p>Sí, todos los documentos emitidos fuera de España deben estar apostillados para ser válidos ante el consulado español.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h5>¿Qué es la acreditación de domicilio y por qué la necesito?</h5>
+                <p>La acreditación de domicilio es un documento que prueba dónde vives actualmente. Puedes usar tu Planilla de Hacienda reciente o una Certificación de Seguro Social reciente. Este documento es requerido para todas las solicitudes de nacionalidad española.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h5>¿Aplican estas instrucciones para otros consulados?</h5>
+                <p>No, estas instrucciones son específicas para el Consulado de San Juan de Puerto Rico. Otros consulados pueden tener procedimientos diferentes.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h5>¿Cómo se agenda una cita en el consulado?</h5>
+                <p><strong>Paso 1:</strong> Visita el Sistema de Citas del Consulado y haz clic en "Formulario de inscripción". Completa el formulario con tus datos y documentación.</p>
+                <p><strong>Importante:</strong> Todos los documentos deben ser PDF (máximo 1MB), excepto la foto del documento de identidad que debe ser JPG.</p>
+                <p><strong>Paso 2:</strong> Recibirás un justificante de la solicitud en tu correo. Tu solicitud será estudiada y validada.</p>
+                <p><strong>Paso 3:</strong> Tras la validación, recibirás un correo con tu nombre de usuario y contraseña para acceder al sistema de citas.</p>
+                <p><strong>Paso 4:</strong> Con tus credenciales podrás agendar tu cita usando el enlace "ELEGIR FECHA Y HORA".</p>
+            </div>
+            
+            <div class="faq-item">
+                <h5>¿Dónde consigo los formularios Anexo I y III?</h5>
+                <p>Los formularios oficiales Anexo I y III se descargan del sitio web del consulado español correspondiente o se pueden obtener directamente en sus oficinas.</p>
             </div>
         </div>
-
-        <div class="section">
-            <h2>Nuevo Sistema de Citas Online</h2>
-            <div class="important-note">
-                <strong>¡Atención!</strong> El consulado de San Juan ahora usa un nuevo sistema de citas online. <strong>Solo se puede solicitar una cita por persona y trámite.</strong>
-            </div>
-            
-            <h3>Proceso de Solicitud de Cita</h3>
-            <ol>
-                <li><strong>Registrarse en el Sistema:</strong>
-                    <ul>
-                        <li>Acceder al <strong>Formulario de Inscripción</strong> (enlace disponible en la página oficial del consulado)</li>
-                        <li>Completar datos personales SIN apóstrofes, acentos (excepto Ñ) ni guiones</li>
-                        <li>Ejemplo: José María Núñez Sánchez-Bravo → JOSE MARIA / NUÑEZ / SANCHEZ BRAVO</li>
-                    </ul>
-                </li>
-                
-                <li><strong>Documentos Requeridos para la Cita (en PDF, máximo 1MB):</strong>
-                    <ul>
-                        <li>Foto nítida del solicitante junto a su pasaporte abierto (datos legibles, sin gafas oscuras)</li>
-                        <li>Formulario correspondiente (Anexo I o III) completado y firmado</li>
-                        <li>Certificado literal de nacimiento del solicitante (apostillado)</li>
-                        <li>Certificado literal de nacimiento del familiar que da derecho a la nacionalidad</li>
-                        <li>Acreditación de domicilio (planilla de Hacienda o certificación de Seguro Social)</li>
-                    </ul>
-                </li>
-                
-                <li><strong>Proceso de Validación:</strong>
-                    <ul>
-                        <li>Recibirás justificante por email</li>
-                        <li>El consulado validará tu solicitud</li>
-                        <li>Te enviarán usuario y contraseña</li>
-                    </ul>
-                </li>
-                
-                <li><strong>Seleccionar Fecha y Hora:</strong>
-                    <ul>
-                        <li>Usar las credenciales para acceder al sistema de citas</li>
-                        <li>Elegir fecha y hora disponible</li>
-                    </ul>
-                </li>
-            </ol>
-            
-            <div class="warning">
-                <strong>Reglas Importantes:</strong>
-                <ul>
-                    <li> <strong>UNA PERSONA, UNA CITA</strong> - No se admiten registros por terceros</li>
-                    <li> <strong>Solo para consultas técnicas:</strong> cog.sanjuandepuertorico@maec.es con asunto "ERROR CONTRASEÑA LMD"</li>
-                    <li> <strong>Cancelaciones:</strong> Mínimo 3 días de anticipación o usuario bloqueado por 2 meses</li>
-                    <li> <strong>Archivos PDF:</strong> Máximo 1MB, nombres sin caracteres especiales</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>Contacto y Enlaces Oficiales</h2>
-            <div class="contact-info">
-                <h3>Consulado General de España en San Juan de Puerto Rico</h3>
-                <p><strong> Importante:</strong> El enlace del formulario de inscripción solo funciona cuando se accede desde la página oficial del consulado.</p>
-                <p><strong>Página oficial:</strong> <a href="https://www.exteriores.gob.es/Consulados/sanjuandepuertorico/es/Comunicacion/Noticias/Paginas/Articulos/NUEVO-SISTEMA-DE-CITAS-PARA-LA-LEY-DE-MEMORIA-DEMOCRATICA.aspx" target="_blank">Sistema de Citas LMD</a></p>
-                <p><strong>Información general:</strong> <a href="https://www.exteriores.gob.es/Consulados/sanjuandepuertorico/es/ServiciosConsulares/Paginas/index.aspx?scca=Nacionalidad&scco=Puerto+Rico+(EEUU)&scd=253&scs=Nacionalidad+española+por+la+Ley+de+Memoria+Democrática" target="_blank">Ley de Memoria Democrática</a></p>
-                <p><strong>Consultas técnicas únicamente:</strong> <a href="mailto:cog.sanjuandepuertorico@maec.es">cog.sanjuandepuertorico@maec.es</a></p>
-            </div>
-            
-            <div class="important-note">
-                <strong>Formularios Oficiales:</strong>
-                <ul>
-                    <li><a href="https://www.exteriores.gob.es/Documents/DocumentosSC/Nacionalidad/Anexo%201.pdf" target="_blank">Anexo I</a> - Para nietos de española</li>
-                    <li><a href="https://www.exteriores.gob.es/Documents/DocumentosSC/Nacionalidad/Anexo%203.pdf" target="_blank">Anexo III</a> - Para hijos de solicitantes</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>Preguntas Frecuentes</h2>
-            
-            <h3>¿Puedo solicitar por Anexo 3 sin esperar a que aprueben la solicitud de mi padre/madre?</h3>
-            <p>Sí, puedes presentar tu solicitud con el comprobante de que tu padre/madre ya presentó su solicitud por Anexo 1.</p>
-            
-            <h3>¿Qué pasa si soy menor de edad?</h3>
-            <p>Los menores de edad deben esperar a que se apruebe la solicitud de sus padres, excepto si el abuelo es español de origen (caso de Anexo 1).</p>
-            
-            <h3>¿Por qué no funciona el enlace del formulario?</h3>
-            <p>El enlace del formulario de inscripción solo funciona cuando se accede desde la página oficial del consulado de San Juan. No se puede acceder directamente.</p>
-            
-            <h3>¿Puedo usar los documentos provisionales de la familia?</h3>
-            <p>Sí, puedes usar las copias provisionales (acta de bautismo, etc.) para solicitar tu cita, pero durante la cita presencial debes presentar los documentos originales.</p>
-            
-            <h3>¿Aplican estas instrucciones para otros consulados?</h3>
-            <p>No, estas instrucciones son específicas para el Consulado de San Juan de Puerto Rico. Otros consulados pueden tener procedimientos diferentes.</p>
-        </div>
-        <footer style="text-align: center; padding: 20px; color: #666;">
-            <p>Esta guía es informativa y se basa en la documentación oficial disponible. Siempre consulta con el consulado para casos específicos.</p>
-            <p><em>Última actualización: 2024</em></p>
-        </footer>
     </div>
+
+    <!-- Modal para instrucciones de cita -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <!-- Contenido generado dinámicamente -->
+        </div>
+    </div>
+    
+    <script>
+        var selectedAncestor = '';
+        var userPath = [];
+        
+        function selectAncestor(name) {
+            selectedAncestor = name;
+            userPath = ['ancestor-' + name];
+            
+            var selectedDiv = document.getElementById('selected-ancestor');
+            selectedDiv.textContent = 'Descendiente de: ' + name;
+            selectedDiv.classList.add('active');
+            
+            document.getElementById('ancestor-name').textContent = name;
+            document.getElementById('ancestor-name3').textContent = name;
+            
+            document.getElementById('q2').classList.add('active');
+            document.querySelector('.questionnaire').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function selectRelation(relation) {
+            userPath.push(relation);
+            
+            var questions = document.querySelectorAll('.question');
+            for (var i = 0; i < questions.length; i++) {
+                questions[i].classList.remove('active');
+            }
+            
+            if (relation === 'hijo') {
+                showResult('anexo3-hijo');
+            } else if (relation === 'nieto') {
+                document.getElementById('q4-nieto').classList.add('active');
+            } else if (relation === 'bisnieto') {
+                document.getElementById('q6-bisnieto').classList.add('active');
+            }
+        }
+        
+        function answer(choice) {
+            userPath.push(choice);
+            
+            var questions = document.querySelectorAll('.question');
+            for (var i = 0; i < questions.length; i++) {
+                questions[i].classList.remove('active');
+            }
+            
+            if (choice === 'padre-vivo') {
+                document.getElementById('q5-nieto-vivo').classList.add('active');
+            } else if (choice === 'padre-fallecido') {
+                showResult('anexo1-nieto-padre-fallecido');
+            } else if (choice === 'padre-solicito') {
+                showResult('anexo3-nieto-padre-solicito');
+            } else if (choice === 'padre-no-solicito') {
+                showResult('padre-debe-solicitar-anexo3');
+            } else if (choice === 'padre-es-espanol') {
+                showResult('anexo3-bisnieto-puede-solicitar');
+            } else if (choice === 'padre-no-es-espanol') {
+                document.getElementById('q7-bisnieto-padre-vivo').classList.add('active');
+            } else if (choice === 'bisnieto-padre-vivo') {
+                showResult('bisnieto-padre-debe-solicitar');
+            } else if (choice === 'bisnieto-padre-fallecido') {
+                var ancestorName4 = document.getElementById('ancestor-name4');
+                if (ancestorName4) {
+                    ancestorName4.textContent = selectedAncestor;
+                }
+                document.getElementById('q8-bisnieto-abuelo-vivo').classList.add('active');
+            } else if (choice === 'bisnieto-abuelo-vivo') {
+                showResult('bisnieto-abuelo-debe-solicitar');
+            } else if (choice === 'bisnieto-abuelo-fallecido') {
+                showResult('bisnieto-no-puede-solicitar');
+            }
+        }
+        
+        function showResult(type) {
+            var resultDiv = document.getElementById('result');
+            var content = '';
+            var anexoType = '';
+            
+            if (type === 'anexo3-hijo') {
+                anexoType = 'anexo3';
+                content = '<h2>¡Puedes solicitar la nacionalidad española!</h2>' +
+                         '<div class="anexo-badge">ANEXO III</div>' +
+                         '<p>Como hijo/a de ' + selectedAncestor + ' (quien es hijo/a de español de origen), puedes solicitar la nacionalidad española bajo el Anexo III como hijo/a de español de sangre.</p>' +
+                         '<p>Documentos que necesitas:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 0 auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Acta de nacimiento de ' + selectedAncestor + '</strong> (certificación literal)</li>' +
+                         '<li><strong>Acta de bautismo de Bartolomé</strong> (Parroquia de Santa Eulalia, Palma de Mallorca)</li>' +
+                         '<li><strong>Declaración de nacionalidad de Bartolomé</strong> (Expediente 1835, Bayamón 1900)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>';
+            } else if (type === 'anexo1-nieto-padre-fallecido') {
+                anexoType = 'anexo1';
+                content = '<h2>¡Puedes solicitar la nacionalidad española!</h2>' +
+                         '<div class="anexo-badge">ANEXO I</div>' +
+                         '<p>Como nieto/a de ' + selectedAncestor + ' y bisnieto/a de Bartolomé, y dado que tu padre/madre ha fallecido, puedes solicitar directamente bajo el Anexo I como nieto/a de español de origen.</p>' +
+                         '<p>Documentos que necesitas:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 0 auto;">' +
+                         '<li><strong>Anexo I</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Acta de nacimiento de tu padre/madre</strong> (certificación literal)</li>' +
+                         '<li><strong>Acta de nacimiento de ' + selectedAncestor + '</strong> (certificación literal)</li>' +
+                         '<li><strong>Acta de bautismo de Bartolomé</strong> (Parroquia de Santa Eulalia, Palma de Mallorca)</li>' +
+                         '<li><strong>Declaración de nacionalidad de Bartolomé</strong> (Expediente 1835, Bayamón 1900)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>';
+            } else if (type === 'anexo3-nieto-padre-solicito') {
+                anexoType = 'anexo3';
+                content = '<h2>¡Puedes solicitar la nacionalidad española!</h2>' +
+                         '<div class="anexo-badge">ANEXO III</div>' +
+                         '<p>Como nieto/a de ' + selectedAncestor + ' (bisnieto/a de Bartolomé), y dado que tu padre/madre ya ha solicitado la nacionalidad bajo el Anexo III, puedes solicitar también bajo el Anexo III.</p>' +
+                         '<p>Importante: Puedes presentar tu solicitud con el justificante/resguardo de la solicitud de tu padre/madre. No necesitas esperar a que se resuelva su expediente.</p>' +
+                         '<p>Documentos que necesitas:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 0 auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Resguardo de solicitud de tu padre/madre</strong> (copia del comprobante que recibió cuando solicitó)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>';
+            } else if (type === 'padre-debe-solicitar-anexo3') {
+                anexoType = 'anexo3';
+                content = '<h2>Tu padre/madre debe solicitar primero</h2>' +
+                         '<p>Tu padre/madre, como hijo/a de ' + selectedAncestor + ' (quien es hijo/a de español de origen), puede solicitar la nacionalidad española bajo el Anexo III.</p>' +
+                         '<p>Una vez que tu padre/madre presente su solicitud bajo el Anexo III, tú podrás presentar la tuya también bajo el Anexo III con el resguardo de su expediente.</p>' +
+                         '<p>Tu padre/madre necesitará presentar bajo <strong>Anexo III</strong>:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 0 auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Su identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Su acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Acta de nacimiento de ' + selectedAncestor + '</strong> (certificación literal)</li>' +
+                         '<li><strong>Acta de bautismo de Bartolomé</strong> (Parroquia de Santa Eulalia, Palma de Mallorca)</li>' +
+                         '<li><strong>Declaración de nacionalidad de Bartolomé</strong> (Expediente 1835, Bayamón 1900)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>' +
+                         '<p>Después tú presentarás bajo <strong>Anexo III</strong>:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 0 auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Resguardo de solicitud de tu padre/madre</strong> (copia del comprobante que recibió cuando solicitó)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>';
+            } else if (type === 'anexo3-bisnieto-puede-solicitar') {
+                anexoType = 'anexo3';
+                content = '<h2>¡Puedes solicitar la nacionalidad española!</h2>' +
+                         '<div class="anexo-badge">ANEXO III</div>' +
+                         '<p>Como bisnieto/a de ' + selectedAncestor + ' (tataranieto/a de Bartolomé), y dado que tu padre/madre ya tiene nacionalidad española o ha solicitado, puedes solicitar bajo el Anexo III.</p>' +
+                         '<p>Si tu padre/madre ya tiene nacionalidad española, documentos que necesitas:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 0 auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Certificación española de nacimiento de tu padre/madre</strong></li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>' +
+                         '<p>Si tu padre/madre está en proceso de solicitud, documentos que necesitas:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 0 auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Resguardo de solicitud de tu padre/madre</strong> (copia del comprobante que recibió cuando solicitó)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>';
+            } else if (type === 'bisnieto-padre-debe-solicitar') {
+                anexoType = 'anexo1';
+                content = '<h2>Tu padre/madre debe solicitar la nacionalidad española primero</h2>' +
+                         '<p>Como nieto/a de ' + selectedAncestor + ' (bisnieto/a de Bartolomé), tu padre/madre puede solicitar la nacionalidad española bajo el <strong>Anexo I</strong> como nieto/a de español de origen.</p>' +
+                         '<p>Tu padre/madre debe presentar bajo <strong>Anexo I</strong>:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 10px auto;">' +
+                         '<li><strong>Anexo I</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Su identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Su acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Acta de nacimiento de ' + selectedAncestor + '</strong> (certificación literal)</li>' +
+                         '<li><strong>Acta de bautismo de Bartolomé</strong> (Parroquia de Santa Eulalia, Palma de Mallorca)</li>' +
+                         '<li><strong>Declaración de nacionalidad de Bartolomé</strong> (Expediente 1835, Bayamón 1900)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>' +
+                         '<p>Después tú presentarás bajo <strong>Anexo III</strong>:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 10px auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Resguardo de solicitud de tu padre/madre</strong> (copia del comprobante que recibió cuando solicitó)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>' +
+                         '<p>Importante: No necesitas esperar a que se resuelva el expediente de tu padre/madre. Con el resguardo es suficiente para presentar tu solicitud.</p>';
+            } else if (type === 'bisnieto-abuelo-debe-solicitar') {
+                anexoType = 'anexo3';
+                content = '<h2>Tu abuelo/a debe iniciar el proceso</h2>' +
+                         '<p>Como bisnieto/a de ' + selectedAncestor + ', y dado que tu padre/madre ha fallecido, necesitas que tu abuelo/a (' + selectedAncestor + ') inicie el proceso.</p>' +
+                         '<p>Tu abuelo/a (' + selectedAncestor + ') debe presentar bajo <strong>Anexo III</strong>:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 10px auto;">' +
+                         '<li><strong>Anexo III</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Su identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Su acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Acta de bautismo de Bartolomé</strong> (Parroquia de Santa Eulalia, Palma de Mallorca)</li>' +
+                         '<li><strong>Declaración de nacionalidad de Bartolomé</strong> (Expediente 1835, Bayamón 1900)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>' +
+                         '<p>Después tú presentarás bajo <strong>Anexo I</strong>:</p>' +
+                         '<ul style="text-align: left; max-width: 600px; margin: 10px auto;">' +
+                         '<li><strong>Anexo I</strong> (formulario oficial firmado)</li>' +
+                         '<li><strong>Tu identificación</strong> (pasaporte o cédula)</li>' +
+                         '<li><strong>Tu acta de nacimiento</strong> (certificación literal del registro civil)</li>' +
+                         '<li><strong>Acta de nacimiento de tu padre/madre fallecido</strong> (certificación literal)</li>' +
+                         '<li><strong>Certificación española de nacimiento de ' + selectedAncestor + '</strong> (una vez obtenga la nacionalidad)</li>' +
+                         '<li><strong>Acreditación de domicilio</strong> (Planilla de Hacienda o Certificación de Seguro Social reciente)</li>' +
+                         '</ul>' +
+                         '<p>Es importante que tu abuelo/a inicie el proceso primero para establecer la cadena de nacionalidad española.</p>';
+            } else if (type === 'bisnieto-no-puede-solicitar') {
+                anexoType = 'none';
+                content = '<h2>Lamentablemente no puedes solicitar la nacionalidad española</h2>' +
+                         '<p>Como bisnieto/a de ' + selectedAncestor + ', y dado que tanto tu padre/madre como tu abuelo/a han fallecido, no es posible establecer la cadena de nacionalidad necesaria bajo la Ley de Memoria Democrática.</p>' +
+                         '<p>La ley requiere que al menos uno de tus ancestros directos (padre/madre o abuelo/a) pueda solicitar o haya solicitado la nacionalidad española para que tú puedas beneficiarte.</p>' +
+                         '<p>Te recomendamos consultar con un abogado especializado en nacionalidad española por si existieran otras vías alternativas en tu caso particular.</p>';
+            } else {
+                anexoType = 'none';
+                content = '<h2>Funcionalidad en desarrollo</h2>' +
+                         '<p>Este caso específico está siendo desarrollado. Por favor, consulta el FAQ o contacta a la familia para más información.</p>';
+            }
+            
+            if (anexoType !== 'none') {
+                content += '<button class="appointment-btn" onclick="showAppointmentInstructions(\'' + anexoType + '\', \'' + type + '\')">¿Cómo solicitar cita?</button>';
+            }
+            content += '<button class="reset-btn" onclick="reset()">Comenzar de nuevo</button>';
+            resultDiv.innerHTML = content;
+            resultDiv.classList.add('active');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function showAppointmentInstructions(anexoType, resultType) {
+            var modal = document.getElementById('appointmentModal');
+            var modalContent = modal.querySelector('.modal-content');
+            
+            var content = '<span class="close" onclick="closeModal()">&times;</span>' +
+                         '<h3>Cómo Solicitar Cita para la Nacionalidad Española</h3>';
+            
+            content += '<div class="modal-step">' +
+                      '<h4>Paso 1: Accede al Formulario de Inscripción</h4>' +
+                      '<p>Para solicitar una cita, debes:</p>' +
+                      '<p>1. Visitar el <a href="https://www.exteriores.gob.es/Consulados/sanjuandepuertorico/es/Comunicacion/Noticias/Paginas/Articulos/NUEVO-SISTEMA-DE-CITAS-PARA-LA-LEY-DE-MEMORIA-DEMOCRATICA.aspx" target="_blank">Sistema de Citas del Consulado</a></p>' +
+                      '<p>2. Hacer clic en el enlace que dice <strong>"Formulario de inscripción"</strong></p>' +
+                      '<p>3. Completar el formulario con tus datos y documentación</p>' +
+                      '</div>';
+            
+            content += '<div class="modal-step">' +
+                      '<h4>Instrucciones específicas para ' + (anexoType === 'anexo1' ? 'Anexo I' : 'Anexo III') + '</h4>' +
+                      '<p><strong>Requisitos de archivos:</strong></p>' +
+                      '<ul style="margin: 10px 0; padding-left: 20px;">' +
+                      '<li>Todos los documentos deben ser <strong>PDF (máximo 1MB cada uno)</strong></li>' +
+                      '<li>Solo la foto del documento de identidad debe ser <strong>JPG</strong></li>' +
+                      '</ul>';
+            
+            if (anexoType === 'anexo1') {
+                content += '<p><strong>Cómo llenar cada campo:</strong></p>' +
+                          '<ul style="margin: 10px 0; padding-left: 20px;">' +
+                          '<li><strong>Formulario (Anexo I):</strong> Descargar, completar y firmar el formulario Anexo I</li>' +
+                          '<li><strong>Foto Documento Identidad:</strong> Tu pasaporte o cédula (formato JPG)</li>' +
+                          '<li><strong>Certificado Nacimiento Solicitante:</strong> Tu acta de nacimiento (certificación literal)</li>' +
+                          '<li><strong>Certificado Nacimiento Progenitor Abuelo o Abuela español:</strong> Acta de nacimiento de ' + selectedAncestor + '</li>' +
+                          '<li><strong>Certificado Nacimiento Progenitor hijo de Abuelo/a español:</strong> Acta de nacimiento de tu padre/madre (hijo/hija de ' + selectedAncestor + ')</li>' +
+                          '<li><strong>Otros Documentos:</strong> Acta de bautismo de Bartolomé + Declaración de nacionalidad de Bartolomé + tu acreditación de domicilio (combinar en un solo PDF si es necesario)</li>' +
+                          '</ul>';
+            } else {
+                // Instrucciones específicas según el tipo de resultado Anexo III
+                if (resultType === 'anexo3-hijo') {
+                    content += '<p><strong>Cómo llenar cada campo (como hijo de español de sangre):</strong></p>' +
+                              '<ul style="margin: 10px 0; padding-left: 20px;">' +
+                              '<li><strong>Formulario (Anexo III):</strong> Descargar, completar y firmar el formulario Anexo III</li>' +
+                              '<li><strong>Foto Documento Identidad:</strong> Tu pasaporte o cédula (formato JPG)</li>' +
+                              '<li><strong>Certificado Nacimiento Solicitante:</strong> Tu acta de nacimiento (certificación literal)</li>' +
+                              '<li><strong>Certificado Nacimiento Progenitor Abuelo o Abuela español:</strong> Acta de nacimiento de ' + selectedAncestor + '</li>' +
+                              '<li><strong>Otros Documentos:</strong> Acta de bautismo de Bartolomé + Declaración de nacionalidad de Bartolomé + tu acreditación de domicilio (combinar en un solo PDF si es necesario)</li>' +
+                              '</ul>';
+                } else {
+                    content += '<p><strong>Cómo llenar cada campo:</strong></p>' +
+                              '<ul style="margin: 10px 0; padding-left: 20px;">' +
+                              '<li><strong>Formulario (Anexo III):</strong> Descargar, completar y firmar el formulario Anexo III</li>' +
+                              '<li><strong>Foto Documento Identidad:</strong> Tu pasaporte o cédula (formato JPG)</li>' +
+                              '<li><strong>Certificado Nacimiento Solicitante:</strong> Tu acta de nacimiento (certificación literal)</li>' +
+                              '<li><strong>Certificado Nacimiento Progenitor Abuelo o Abuela español:</strong> Certificación española de tu padre/madre (si ya tiene nacionalidad) o resguardo de su solicitud</li>' +
+                              '<li><strong>Otros Documentos:</strong> Tu acreditación de domicilio + cualquier documentación adicional requerida según tu caso específico</li>' +
+                              '</ul>';
+                }
+            }
+            
+            content += '</div>';
+            
+            content += '<div class="modal-step">' +
+                      '<h4>Paso 2: Envía tu Solicitud</h4>' +
+                      '<p>Si envías tu solicitud correctamente, recibirás un <strong>justificante de la solicitud</strong> en el correo electrónico que proporcionaste en el formulario. Tu solicitud de cita será estudiada y validada.</p>' +
+                      '</div>' +
+                      
+                      '<div class="modal-step">' +
+                      '<h4>Paso 3: Obtén tu Usuario y Contraseña</h4>' +
+                      '<p>Tras la validación de tu solicitud por la Oficina Consular, recibirás un nuevo correo con tu <strong>nombre de usuario y contraseña</strong> para acceder al sistema de citas.</p>' +
+                      '</div>' +
+                      
+                      '<div class="modal-step">' +
+                      '<h4>Paso 4: Agenda tu Cita</h4>' +
+                      '<p>Con tu nombre de usuario y contraseña podrás gestionar y obtener cita en la agenda de citas LMD usando el enlace <strong>"ELEGIR FECHA Y HORA"</strong>.</p>' +
+                      '</div>';
+            
+            modalContent.innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('appointmentModal').style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        window.onclick = function(event) {
+            var modal = document.getElementById('appointmentModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        function reset() {
+            selectedAncestor = '';
+            userPath = [];
+            var questions = document.querySelectorAll('.question');
+            for (var i = 0; i < questions.length; i++) {
+                questions[i].classList.remove('active');
+            }
+            document.getElementById('result').classList.remove('active');
+            document.getElementById('selected-ancestor').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
