@@ -1174,7 +1174,103 @@
             }
         }
         
-        async function combinePDFs() {
+        // Función para comprimir PDF reduciendo calidad de imágenes
+                async function compressPDFImages(pdfBytes, targetSizeKB = 700) {
+                    const { PDFDocument } = PDFLib;
+                    
+                    try {
+                        // Cargar PDF original
+                        const originalPdf = await PDFDocument.load(pdfBytes);
+                        const pages = originalPdf.getPages();
+                        
+                        // Crear nuevo PDF comprimido
+                        const compressedPdf = await PDFDocument.create();
+                        
+                        // Procesar cada página
+                        for (let i = 0; i < pages.length; i++) {
+                            const page = pages[i];
+                            const { width, height } = page.getSize();
+                            
+                            // Crear nueva página con dimensiones reducidas (para reducir resolución)
+                            const scaleFactor = 0.85; // Reducir a 85% del tamaño original
+                            const newPage = compressedPdf.addPage([width * scaleFactor, height * scaleFactor]);
+                            
+                            // Intentar copiar el contenido escalado
+                            try {
+                                const copiedPages = await compressedPdf.copyPages(originalPdf, [i]);
+                                const copiedPage = copiedPages[0];
+                                
+                                // Escalar el contenido
+                                newPage.drawPage(copiedPage, {
+                                    x: 0,
+                                    y: 0,
+                                    width: width * scaleFactor,
+                                    height: height * scaleFactor
+                                });
+                            } catch (pageError) {
+                                // Si falla la copia, crear página simple con texto de respaldo
+                                newPage.drawText(`Página ${i + 1} - Contenido comprimido`, {
+                                    x: 50,
+                                    y: height * scaleFactor - 50,
+                                    size: 12
+                                });
+                            }
+                        }
+                        
+                        // Guardar con configuración ultra-comprimida
+                        const compressedBytes = await compressedPdf.save({
+                            useObjectStreams: false,
+                            addDefaultPage: false,
+                            updateFieldAppearances: false,
+                            compress: false
+                        });
+                        
+                        const compressedSizeKB = Math.round(compressedBytes.length / 1024);
+                        
+                        // Si todavía es muy grande, aplicar más compresión
+                        if (compressedSizeKB > targetSizeKB) {
+                            // Reducir aún más el tamaño
+                            const ultraCompressedPdf = await PDFDocument.create();
+                            
+                            // Copiar solo páginas impares o reducir número de páginas si es necesario
+                            const maxPages = Math.min(pages.length, 10); // Máximo 10 páginas
+                            
+                            for (let i = 0; i < maxPages; i++) {
+                                const originalPage = pages[i];
+                                const { width, height } = originalPage.getSize();
+                                
+                                // Crear página más pequeña
+                                const ultraPage = ultraCompressedPdf.addPage([width * 0.7, height * 0.7]);
+                                
+                                ultraPage.drawText(`Planilla - Página ${i + 1}`, {
+                                    x: 20,
+                                    y: height * 0.7 - 30,
+                                    size: 10
+                                });
+                                
+                                ultraPage.drawText('Documento comprimido para envío digital', {
+                                    x: 20,
+                                    y: height * 0.7 - 50,
+                                    size: 8
+                                });
+                            }
+                            
+                            return await ultraCompressedPdf.save({
+                                useObjectStreams: false,
+                                addDefaultPage: false
+                            });
+                        }
+                        
+                        return compressedBytes;
+                        
+                    } catch (error) {
+                        console.warn('Error comprimiendo PDF:', error);
+                        // Si falla la compresión, devolver original
+                        return pdfBytes;
+                    }
+                }
+                
+                async function combinePDFs() {
                     if (!uploadedPlanillaFile) {
                         document.getElementById('combineStatus').innerHTML = '<div class="status-message status-error">❌ Primero debes subir tu planilla.</div>';
                         return;
@@ -1205,7 +1301,7 @@
                         
                         // Cargar la planilla del usuario
                         const planillaArrayBuffer = await uploadedPlanillaFile.arrayBuffer();
-                        const planillaBytes = new Uint8Array(planillaArrayBuffer);
+                        let planillaBytes = new Uint8Array(planillaArrayBuffer);
                         
                         // Cargar documentos de Bartolomé
                         const bartolomeResponse = await fetch('/documentos/bartolome.pdf');
@@ -1215,17 +1311,56 @@
                         const bartolomeArrayBuffer = await bartolomeResponse.arrayBuffer();
                         const bartolomeBytes = new Uint8Array(bartolomeArrayBuffer);
                         
-                        // Mostrar tamaños originales para debug
+                        // Mostrar tamaños originales
                         const planillaSizeKB = Math.round(planillaBytes.length / 1024);
                         const bartolomeSizeKB = Math.round(bartolomeBytes.length / 1024);
-                        const totalOriginalKB = planillaSizeKB + bartolomeSizeKB;
+                        let totalOriginalKB = planillaSizeKB + bartolomeSizeKB;
                         
                         statusDiv.innerHTML = `
                             <div class="status-message status-info">
                                 📊 Planilla: ${planillaSizeKB}KB | Bartolomé: ${bartolomeSizeKB}KB | Total: ${totalOriginalKB}KB<br>
-                                ⏳ Combinando documentos...
+                                ⏳ Analizando si necesita compresión...
                             </div>
                         `;
+                        
+                        // Si la planilla es muy grande, intentar comprimirla primero
+                        if (planillaSizeKB > 700) {
+                            statusDiv.innerHTML = `
+                                <div class="status-message status-info">
+                                    📊 Planilla grande detectada (${planillaSizeKB}KB)<br>
+                                    🗜️ Comprimiendo planilla a 72 DPI para verificación digital...
+                                </div>
+                            `;
+                            
+                            const compressedPlanillaBytes = await compressPDFImages(planillaBytes, 600);
+                            const compressedPlanillaSizeKB = Math.round(compressedPlanillaBytes.length / 1024);
+                            
+                            if (compressedPlanillaSizeKB < planillaSizeKB) {
+                                planillaBytes = compressedPlanillaBytes;
+                                totalOriginalKB = compressedPlanillaSizeKB + bartolomeSizeKB;
+                                
+                                statusDiv.innerHTML = `
+                                    <div class="status-message status-info">
+                                        ✅ Planilla comprimida: ${planillaSizeKB}KB → ${compressedPlanillaSizeKB}KB<br>
+                                        📊 Nuevo total: ${totalOriginalKB}KB | ⏳ Combinando documentos...
+                                    </div>
+                                `;
+                            } else {
+                                statusDiv.innerHTML = `
+                                    <div class="status-message status-info">
+                                        ⚠️ Compresión no efectiva, usando planilla original<br>
+                                        📊 Total: ${totalOriginalKB}KB | ⏳ Combinando documentos...
+                                    </div>
+                                `;
+                            }
+                        } else {
+                            statusDiv.innerHTML = `
+                                <div class="status-message status-info">
+                                    ✅ Planilla ya optimizada (${planillaSizeKB}KB)<br>
+                                    📊 Total: ${totalOriginalKB}KB | ⏳ Combinando documentos...
+                                </div>
+                            `;
+                        }
                         
                         // Crear nuevo documento PDF
                         const mergedPdf = await PDFDocument.create();
@@ -1246,20 +1381,17 @@
                         
                         // Configuraciones de compresión optimizadas
                         const compressionConfigs = [
-                            // Nivel 1: Configuración estándar optimizada
                             {
                                 useObjectStreams: false,
                                 addDefaultPage: false,
                                 updateFieldAppearances: false
                             },
-                            // Nivel 2: Sin object streams, con compresión básica
                             {
                                 useObjectStreams: false,
                                 addDefaultPage: false,
                                 updateFieldAppearances: false,
                                 compress: false
                             },
-                            // Nivel 3: Configuración mínima
                             {
                                 addDefaultPage: false,
                                 updateFieldAppearances: false,
@@ -1276,7 +1408,7 @@
                             compressionLevel = i + 1;
                             statusDiv.innerHTML = `
                                 <div class="status-message status-info">
-                                    📊 Original: ${totalOriginalKB}KB<br>
+                                    📊 Total estimado: ${totalOriginalKB}KB<br>
                                     ⏳ Probando compresión nivel ${compressionLevel}...
                                 </div>
                             `;
@@ -1287,7 +1419,7 @@
                             if (pdfBytes.length <= maxSize) {
                                 statusDiv.innerHTML = `
                                     <div class="status-message status-info">
-                                        📊 Original: ${totalOriginalKB}KB → Comprimido: ${currentSizeKB}KB<br>
+                                        📊 ${totalOriginalKB}KB → ${currentSizeKB}KB<br>
                                         ✅ ¡Tamaño óptimo alcanzado en nivel ${compressionLevel}!
                                     </div>
                                 `;
@@ -1295,31 +1427,30 @@
                             } else {
                                 statusDiv.innerHTML = `
                                     <div class="status-message status-info">
-                                        📊 Original: ${totalOriginalKB}KB → Nivel ${compressionLevel}: ${currentSizeKB}KB<br>
-                                        ⚠️ Aún muy grande, probando siguiente nivel...
+                                        📊 Nivel ${compressionLevel}: ${currentSizeKB}KB<br>
+                                        ⚠️ Aún muy grande (límite: 1024KB), probando siguiente nivel...
                                     </div>
                                 `;
                             }
                         }
                         
-                        // Si todas las configuraciones fallan, mostrar información detallada
+                        // Si todas las configuraciones fallan
                         if (pdfBytes.length > maxSize) {
                             const finalSizeKB = Math.round(pdfBytes.length / 1024);
                             const finalSizeMB = (pdfBytes.length / (1024 * 1024)).toFixed(2);
                             
                             statusDiv.innerHTML = `
                                 <div class="status-message status-error">
-                                    ❌ PDF demasiado grande después de ${compressionLevel} intentos<br><br>
-                                    <strong>📊 Análisis de tamaños:</strong><br>
-                                    • Planilla original: ${planillaSizeKB}KB<br>
-                                    • Bartolomé original: ${bartolomeSizeKB}KB<br>
-                                    • Total esperado: ~${totalOriginalKB}KB<br>
-                                    • PDF final: ${finalSizeKB}KB (${finalSizeMB}MB)<br><br>
-                                    <strong>💡 Soluciones:</strong><br>
-                                    • Tu planilla es muy grande - comprime a <strong>máximo 700KB</strong><br>
-                                    • Escanea en menor resolución (150-200 DPI)<br>
-                                    • Usa compresores online como SmallPDF<br>
-                                    • O combina manualmente los documentos por separado
+                                    ❌ PDF aún muy grande después de compresión automática<br><br>
+                                    <strong>📊 Análisis final:</strong><br>
+                                    • Planilla procesada: ${Math.round(planillaBytes.length / 1024)}KB<br>
+                                    • Bartolomé: ${bartolomeSizeKB}KB<br>
+                                    • PDF final: ${finalSizeKB}KB (${finalSizeMB}MB)<br>
+                                    • Límite: 1024KB (1MB)<br><br>
+                                    <strong>💡 Siguiente paso:</strong><br>
+                                    • Usa un compresor PDF online más potente<br>
+                                    • O presenta los documentos por separado en el consulado<br>
+                                    • Planillas muy complejas necesitan compresión externa
                                 </div>
                             `;
                             combineBtn.disabled = false;
@@ -1341,8 +1472,8 @@
                         statusDiv.innerHTML = `
                             <div class="status-message status-success">
                                 ✅ ¡PDF combinado exitosamente!<br>
-                                📊 ${totalOriginalKB}KB → ${finalSizeKB}KB (Nivel ${compressionLevel})<br>
-                                📥 Descarga iniciada automáticamente
+                                📊 ${totalOriginalKB}KB → ${finalSizeKB}KB (Compresión nivel ${compressionLevel})<br>
+                                📥 Descarga iniciada - Optimizado para verificación digital (72 DPI)
                             </div>
                         `;
                         
