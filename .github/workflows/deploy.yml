@@ -23,6 +23,6 @@ jobs:
           PORT: ${{ secrets.SERVER_PORT || 22 }}
         run: |
           ssh -o StrictHostKeyChecking=no -p $PORT $USER@$HOST << 'EOF'
-            cd /var/www/html/cantellops.digitaino.com
+            cd /home/digitaino/web-server/www/cantellops.digitaino.com
             git pull origin main
           EOF
