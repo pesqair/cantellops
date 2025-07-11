@@ -450,6 +450,131 @@
         .modal-step li {
             margin-bottom: 8px;
         }
+
+        .document-tools {
+            background: #f0f8ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+        }
+
+        .document-tools h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .pdf-combiner {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .pdf-combiner h5 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .file-input-container {
+            margin: 15px 0;
+        }
+
+        .file-input-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover {
+            border-color: #2980b9;
+            background: #e3f2fd;
+        }
+
+        .combine-btn, .download-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .combine-btn:hover, .download-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .combine-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .download-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .download-section h5 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .download-section p {
+            color: #5a6c7d;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
     </style>
 </head>
 <body>
@@ -622,6 +747,7 @@
         </div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script>
         var selectedAncestor = '';
         var userPath = [];
@@ -861,6 +987,34 @@
             var content = '<span class="close" onclick="closeModal()">&times;</span>' +
                          '<h3>Cómo Solicitar Cita para la Nacionalidad Española</h3>';
             
+            // Herramientas de documentos para Anexo I
+            if (anexoType === 'anexo1') {
+                content += '<div class="document-tools">' +
+                          '<h4>🔧 Herramientas de Documentos para Anexo I</h4>' +
+                          
+                          '<div class="download-section">' +
+                          '<h5>📄 Descargar Acta de Nacimiento de ' + selectedAncestor + '</h5>' +
+                          '<p>Necesitas este documento para el campo "Certificado Nacimiento Progenitor Abuelo o Abuela español"</p>' +
+                          '<button class="download-btn" onclick="downloadDocument(\'dolores.pdf\', \'Acta_Nacimiento_' + selectedAncestor + '.pdf\')">Descargar Acta de ' + selectedAncestor + '</button>' +
+                          '</div>' +
+                          
+                          '<div class="pdf-combiner">' +
+                          '<h5>📋 Combinar tu Planilla con Documentos de Bartolomé</h5>' +
+                          '<p style="font-size: 0.9em; color: #5a6c7d; margin-bottom: 15px;">Sube tu Planilla de Hacienda y la combinaremos automáticamente con los documentos de Bartolomé para crear un solo PDF de menos de 1MB.</p>' +
+                          
+                          '<div class="file-input-container">' +
+                          '<label for="planillaFile">Selecciona tu Planilla de Hacienda (PDF):</label>' +
+                          '<input type="file" id="planillaFile" class="file-input" accept=".pdf" onchange="handlePlanillaUpload(this)">' +
+                          '</div>' +
+                          
+                          '<div id="combineStatus"></div>' +
+                          
+                          '<button id="combineBtn" class="combine-btn" onclick="combinePDFs()" disabled>Combinar Documentos</button>' +
+                          '</div>' +
+                          
+                          '</div>';
+            }
+            
             content += '<div class="modal-step">' +
                       '<h4>Paso 1: Accede al Formulario de Inscripción</h4>' +
                       '<p>Para solicitar una cita, debes:</p>' +
@@ -883,9 +1037,9 @@
                           '<li><strong>Formulario (Anexo I):</strong> Descargar, completar y firmar el formulario Anexo I</li>' +
                           '<li><strong>Foto Documento Identidad:</strong> Tu pasaporte o cédula (formato JPG)</li>' +
                           '<li><strong>Certificado Nacimiento Solicitante:</strong> Tu acta de nacimiento (certificación literal)</li>' +
-                          '<li><strong>Certificado Nacimiento Progenitor Abuelo o Abuela español:</strong> Acta de nacimiento de ' + selectedAncestor + '</li>' +
+                          '<li><strong>Certificado Nacimiento Progenitor Abuelo o Abuela español:</strong> Usa el PDF de ' + selectedAncestor + ' que descargaste arriba</li>' +
                           '<li><strong>Certificado Nacimiento Progenitor hijo de Abuelo/a español:</strong> Acta de nacimiento de tu padre/madre (hijo/hija de ' + selectedAncestor + ')</li>' +
-                          '<li><strong>Otros Documentos:</strong> Acta de bautismo de Bartolomé + Declaración de nacionalidad de Bartolomé + tu acreditación de domicilio (combinar en un solo PDF si es necesario)</li>' +
+                          '<li><strong>Otros Documentos:</strong> Usa el PDF combinado que creaste arriba (tu planilla + documentos de Bartolomé)</li>' +
                           '</ul>';
             } else {
                 // Instrucciones específicas según el tipo de resultado Anexo III
@@ -940,6 +1094,139 @@
             var modal = document.getElementById('appointmentModal');
             if (event.target == modal) {
                 modal.style.display = 'none';
+            }
+        }
+        
+        // Variables globales para el manejo de PDFs
+        var uploadedPlanillaFile = null;
+        
+        function handlePlanillaUpload(input) {
+            var file = input.files[0];
+            var statusDiv = document.getElementById('combineStatus');
+            var combineBtn = document.getElementById('combineBtn');
+            
+            if (file) {
+                if (file.type !== 'application/pdf') {
+                    statusDiv.innerHTML = '<div class="status-message status-error">❌ Por favor selecciona un archivo PDF.</div>';
+                    combineBtn.disabled = true;
+                    uploadedPlanillaFile = null;
+                    return;
+                }
+                
+                if (file.size > 5 * 1024 * 1024) { // 5MB máximo para dar espacio para compresión
+                    statusDiv.innerHTML = '<div class="status-message status-error">❌ El archivo es demasiado grande. Máximo 5MB.</div>';
+                    combineBtn.disabled = true;
+                    uploadedPlanillaFile = null;
+                    return;
+                }
+                
+                uploadedPlanillaFile = file;
+                statusDiv.innerHTML = '<div class="status-message status-success">✅ Planilla cargada: ' + file.name + '</div>';
+                combineBtn.disabled = false;
+            } else {
+                uploadedPlanillaFile = null;
+                combineBtn.disabled = true;
+                statusDiv.innerHTML = '';
+            }
+        }
+        
+        async function combinePDFs() {
+            if (!uploadedPlanillaFile) {
+                document.getElementById('combineStatus').innerHTML = '<div class="status-message status-error">❌ Primero debes subir tu planilla.</div>';
+                return;
+            }
+            
+            var statusDiv = document.getElementById('combineStatus');
+            var combineBtn = document.getElementById('combineBtn');
+            
+            try {
+                combineBtn.disabled = true;
+                statusDiv.innerHTML = '<div class="status-message status-info">⏳ Procesando documentos...</div>';
+                
+                // Cargar PDF-lib
+                const { PDFDocument } = PDFLib;
+                
+                // Crear nuevo documento PDF
+                const mergedPdf = await PDFDocument.create();
+                
+                // Cargar la planilla del usuario
+                const planillaArrayBuffer = await uploadedPlanillaFile.arrayBuffer();
+                const planillaPdf = await PDFDocument.load(planillaArrayBuffer);
+                const planillaPages = await mergedPdf.copyPages(planillaPdf, planillaPdf.getPageIndices());
+                planillaPages.forEach((page) => mergedPdf.addPage(page));
+                
+                // Cargar documentos de Bartolomé
+                const bartolomeResponse = await fetch('/documentos/bartolome.pdf');
+                if (!bartolomeResponse.ok) {
+                    throw new Error('No se pudieron cargar los documentos de Bartolomé');
+                }
+                const bartolomeArrayBuffer = await bartolomeResponse.arrayBuffer();
+                const bartolomePdf = await PDFDocument.load(bartolomeArrayBuffer);
+                const bartolomePages = await mergedPdf.copyPages(bartolomePdf, bartolomePdf.getPageIndices());
+                bartolomePages.forEach((page) => mergedPdf.addPage(page));
+                
+                // Generar PDF final
+                let pdfBytes = await mergedPdf.save();
+                
+                // Verificar tamaño y comprimir si es necesario
+                if (pdfBytes.length > 1024 * 1024) { // Si es mayor a 1MB
+                    statusDiv.innerHTML = '<div class="status-message status-info">⏳ Comprimiendo PDF...</div>';
+                    
+                    // Comprimir con menor calidad
+                    pdfBytes = await mergedPdf.save({
+                        useObjectStreams: false,
+                        addDefaultPage: false
+                    });
+                }
+                
+                // Verificar si aún es muy grande
+                if (pdfBytes.length > 1024 * 1024) {
+                    statusDiv.innerHTML = '<div class="status-message status-error">❌ El PDF resultante es muy grande. Intenta con una planilla más pequeña o escaneada en menor resolución.</div>';
+                    combineBtn.disabled = false;
+                    return;
+                }
+                
+                // Crear enlace de descarga
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Documentos_Combinados_Anexo_I.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                const sizeKB = Math.round(pdfBytes.length / 1024);
+                statusDiv.innerHTML = '<div class="status-message status-success">✅ ¡PDF combinado creado exitosamente! (' + sizeKB + ' KB)<br>📥 La descarga debería haber comenzado automáticamente.</div>';
+                
+            } catch (error) {
+                console.error('Error combinando PDFs:', error);
+                statusDiv.innerHTML = '<div class="status-message status-error">❌ Error procesando los documentos: ' + error.message + '</div>';
+            }
+            
+            combineBtn.disabled = false;
+        }
+        
+        async function downloadDocument(filename, downloadName) {
+            try {
+                const response = await fetch('/documentos/' + filename);
+                if (!response.ok) {
+                    throw new Error('Documento no encontrado');
+                }
+                
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = downloadName || filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                alert('Error descargando el documento: ' + error.message);
             }
         }
         
